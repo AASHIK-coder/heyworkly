@@ -91,6 +91,7 @@ class ScreenMarker {
       focusable: false,
       hasShadow: false,
       thickFrame: false,
+      show: false,
       paintWhenInitiallyHidden: true,
       type: 'panel',
       webPreferences: { nodeIntegration: true, contextIsolation: false },
@@ -99,6 +100,16 @@ class ScreenMarker {
     this.screenWaterFlow.setFocusable(false);
     this.screenWaterFlow.setContentProtection(false);
     this.screenWaterFlow.setIgnoreMouseEvents(true);
+
+    if (env.isWindows) {
+      this.screenWaterFlow.setAlwaysOnTop(true, 'screen-saver');
+    }
+
+    this.screenWaterFlow.once('ready-to-show', () => {
+      if (this.screenWaterFlow && !this.screenWaterFlow.isDestroyed()) {
+        this.screenWaterFlow.showInactive();
+      }
+    });
 
     this.screenWaterFlow.loadURL(`data:text/html;charset=UTF-8,
       <html>
@@ -190,8 +201,10 @@ class ScreenMarker {
       skipTaskbar: true,
       focusable: false,
       resizable: false,
-      type: 'toolbar',
-      visualEffectState: 'active', // macOS only
+      show: false,
+      // 'toolbar' is macOS-only; use 'panel' on Windows/Linux for proper rendering
+      type: env.isMacOS ? 'toolbar' : 'panel',
+      ...(env.isMacOS && { visualEffectState: 'active' }),
       webPreferences: {
         preload: path.join(__dirname, '../preload/index.js'),
         sandbox: false,
@@ -205,6 +218,16 @@ class ScreenMarker {
       Math.floor(screenWidth - 400 - 32),
       Math.floor(screenHeight - 400 - 32 - 64),
     );
+
+    if (env.isWindows) {
+      this.widgetWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
+
+    this.widgetWindow.once('ready-to-show', () => {
+      if (this.widgetWindow && !this.widgetWindow.isDestroyed()) {
+        this.widgetWindow.showInactive();
+      }
+    });
 
     if (!app.isPackaged && env.rendererUrl) {
       this.widgetWindow.loadURL(env.rendererUrl + '#widget');
