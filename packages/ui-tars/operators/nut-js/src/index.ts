@@ -304,6 +304,12 @@ export class NutJSOperator extends Operator {
           case 'down':
             await mouse.scrollDown(5 * 100);
             break;
+          case 'left':
+            await mouse.scrollLeft(5 * 100);
+            break;
+          case 'right':
+            await mouse.scrollRight(5 * 100);
+            break;
           default:
             console.warn(
               `[NutjsOperator] Unsupported scroll direction: ${direction}`,

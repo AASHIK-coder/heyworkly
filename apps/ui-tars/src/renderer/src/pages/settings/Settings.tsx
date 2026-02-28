@@ -54,7 +54,10 @@ const formSchema = z.object({
   searchEngineForBrowser: z.nativeEnum(SearchEngineForSettings),
 });
 
-const PROVIDER_PRESETS: Record<string, { baseUrl: string; modelPlaceholder: string }> = {
+const PROVIDER_PRESETS: Record<
+  string,
+  { baseUrl: string; modelPlaceholder: string }
+> = {
   [VLMProviderV2.openrouter]: {
     baseUrl: 'https://openrouter.ai/api/v1',
     modelPlaceholder: 'e.g. bytedance/ui-tars-1.5-7b',
@@ -66,14 +69,70 @@ const PROVIDER_PRESETS: Record<string, { baseUrl: string; modelPlaceholder: stri
 };
 
 const POPULAR_MODELS = [
-  { id: 'bytedance/ui-tars-1.5-7b', label: 'UI-TARS 1.5 7B (Default)', category: 'ByteDance' },
-  { id: 'anthropic/claude-sonnet-4.5', label: 'Claude Sonnet 4.5', category: 'Anthropic' },
-  { id: 'anthropic/claude-sonnet-4.6', label: 'Claude Sonnet 4.6', category: 'Anthropic' },
-  { id: 'anthropic/claude-haiku-4.5', label: 'Claude Haiku 4.5', category: 'Anthropic' },
+  // UI-TARS native models
+  {
+    id: 'bytedance/ui-tars-1.5-7b',
+    label: 'UI-TARS 1.5 7B (Default)',
+    category: 'ByteDance',
+  },
+  // Anthropic
+  {
+    id: 'anthropic/claude-opus-4',
+    label: 'Claude Opus 4',
+    category: 'Anthropic',
+  },
+  {
+    id: 'anthropic/claude-sonnet-4',
+    label: 'Claude Sonnet 4',
+    category: 'Anthropic',
+  },
+  {
+    id: 'anthropic/claude-sonnet-4.5',
+    label: 'Claude Sonnet 4.5',
+    category: 'Anthropic',
+  },
+  {
+    id: 'anthropic/claude-sonnet-4.6',
+    label: 'Claude Sonnet 4.6',
+    category: 'Anthropic',
+  },
+  {
+    id: 'anthropic/claude-haiku-4.5',
+    label: 'Claude Haiku 4.5',
+    category: 'Anthropic',
+  },
+  // OpenAI
   { id: 'openai/gpt-4.1', label: 'GPT-4.1', category: 'OpenAI' },
   { id: 'openai/gpt-4.1-mini', label: 'GPT-4.1 Mini', category: 'OpenAI' },
   { id: 'openai/gpt-4o', label: 'GPT-4o', category: 'OpenAI' },
   { id: 'openai/o4-mini', label: 'o4-mini', category: 'OpenAI' },
+  // Google
+  {
+    id: 'google/gemini-2.5-pro-preview',
+    label: 'Gemini 2.5 Pro',
+    category: 'Google',
+  },
+  {
+    id: 'google/gemini-2.5-flash-preview',
+    label: 'Gemini 2.5 Flash',
+    category: 'Google',
+  },
+  {
+    id: 'google/gemini-2.0-flash-001',
+    label: 'Gemini 2.0 Flash',
+    category: 'Google',
+  },
+  // Qwen
+  {
+    id: 'qwen/qwen-2.5-vl-72b-instruct',
+    label: 'Qwen 2.5 VL 72B',
+    category: 'Qwen',
+  },
+  {
+    id: 'qwen/qwen-2.5-vl-7b-instruct',
+    label: 'Qwen 2.5 VL 7B',
+    category: 'Qwen',
+  },
 ];
 
 const SECTIONS = {
@@ -292,12 +351,14 @@ export default function Settings() {
                         </Select>
                         {field.value === VLMProviderV2.openrouter && (
                           <p className="text-xs text-muted-foreground">
-                            Use any OpenRouter model. Get your API key at openrouter.ai
+                            Use any OpenRouter model. Get your API key at
+                            openrouter.ai
                           </p>
                         )}
                         {field.value === VLMProviderV2.custom && (
                           <p className="text-xs text-muted-foreground">
-                            Any OpenAI-compatible endpoint (Ollama, LM Studio, vLLM, etc.)
+                            Any OpenAI-compatible endpoint (Ollama, LM Studio,
+                            vLLM, etc.)
                           </p>
                         )}
                         <FormMessage />
@@ -313,10 +374,7 @@ export default function Settings() {
                     <FormItem>
                       <FormLabel>VLM Base URL</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Enter VLM Base URL"
-                          {...field}
-                        />
+                        <Input placeholder="Enter VLM Base URL" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -330,10 +388,7 @@ export default function Settings() {
                     <FormItem>
                       <FormLabel>VLM API Key</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Enter VLM API_Key"
-                          {...field}
-                        />
+                        <Input placeholder="Enter VLM API_Key" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -372,14 +427,12 @@ export default function Settings() {
                         </Select>
                       )}
                       <FormControl>
-                        <Input
-                          placeholder="Enter VLM Model Name"
-                          {...field}
-                        />
+                        <Input placeholder="Enter VLM Model Name" {...field} />
                       </FormControl>
                       {watchedProvider === VLMProviderV2.openrouter && (
                         <p className="text-xs text-muted-foreground">
-                          Select a popular model above or type any OpenRouter model ID
+                          Select a popular model above or type any OpenRouter
+                          model ID
                         </p>
                       )}
                     </FormItem>
@@ -558,7 +611,6 @@ export default function Settings() {
           </div>
         </div>
       </div>
-
     </div>
   );
 }

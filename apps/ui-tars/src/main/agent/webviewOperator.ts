@@ -35,39 +35,89 @@ function isValidNavigationUrl(url: string): boolean {
 // Maps human-readable key names → CDP Input.dispatchKeyEvent parameters
 
 interface KeyDef {
-  key: string;          // DOM Key value
-  code: string;         // DOM Code value
-  keyCode: number;      // Windows virtual key code
+  key: string; // DOM Key value
+  code: string; // DOM Code value
+  keyCode: number; // Windows virtual key code
   isModifier?: boolean; // Whether this is a modifier key
   modifierBit?: number; // CDP modifier bitmask bit (Alt=1, Ctrl=2, Meta=4, Shift=8)
 }
 
 const KEY_DEFS: Record<string, KeyDef> = {
   // Modifiers — on macOS ctrl/control maps to Meta (Command)
-  shift:   { key: 'Shift',   code: 'ShiftLeft',   keyCode: 16,  isModifier: true, modifierBit: 8 },
-  alt:     { key: 'Alt',     code: 'AltLeft',     keyCode: 18,  isModifier: true, modifierBit: 1 },
-  control: { key: isMac ? 'Meta' : 'Control', code: isMac ? 'MetaLeft' : 'ControlLeft', keyCode: isMac ? 91 : 17, isModifier: true, modifierBit: isMac ? 4 : 2 },
-  ctrl:    { key: isMac ? 'Meta' : 'Control', code: isMac ? 'MetaLeft' : 'ControlLeft', keyCode: isMac ? 91 : 17, isModifier: true, modifierBit: isMac ? 4 : 2 },
-  cmd:     { key: 'Meta',    code: 'MetaLeft',    keyCode: 91,  isModifier: true, modifierBit: 4 },
-  command: { key: 'Meta',    code: 'MetaLeft',    keyCode: 91,  isModifier: true, modifierBit: 4 },
-  meta:    { key: 'Meta',    code: 'MetaLeft',    keyCode: 91,  isModifier: true, modifierBit: 4 },
+  shift: {
+    key: 'Shift',
+    code: 'ShiftLeft',
+    keyCode: 16,
+    isModifier: true,
+    modifierBit: 8,
+  },
+  alt: {
+    key: 'Alt',
+    code: 'AltLeft',
+    keyCode: 18,
+    isModifier: true,
+    modifierBit: 1,
+  },
+  control: {
+    key: isMac ? 'Meta' : 'Control',
+    code: isMac ? 'MetaLeft' : 'ControlLeft',
+    keyCode: isMac ? 91 : 17,
+    isModifier: true,
+    modifierBit: isMac ? 4 : 2,
+  },
+  ctrl: {
+    key: isMac ? 'Meta' : 'Control',
+    code: isMac ? 'MetaLeft' : 'ControlLeft',
+    keyCode: isMac ? 91 : 17,
+    isModifier: true,
+    modifierBit: isMac ? 4 : 2,
+  },
+  cmd: {
+    key: 'Meta',
+    code: 'MetaLeft',
+    keyCode: 91,
+    isModifier: true,
+    modifierBit: 4,
+  },
+  command: {
+    key: 'Meta',
+    code: 'MetaLeft',
+    keyCode: 91,
+    isModifier: true,
+    modifierBit: 4,
+  },
+  meta: {
+    key: 'Meta',
+    code: 'MetaLeft',
+    keyCode: 91,
+    isModifier: true,
+    modifierBit: 4,
+  },
 
   // Navigation / editing
-  enter:     { key: 'Enter',     code: 'Enter',      keyCode: 13 },
-  tab:       { key: 'Tab',       code: 'Tab',        keyCode: 9 },
-  escape:    { key: 'Escape',    code: 'Escape',     keyCode: 27 },
-  backspace: { key: 'Backspace', code: 'Backspace',  keyCode: 8 },
-  delete:    { key: 'Delete',    code: 'Delete',     keyCode: 46 },
-  space:     { key: ' ',         code: 'Space',      keyCode: 32 },
+  enter: { key: 'Enter', code: 'Enter', keyCode: 13 },
+  return: { key: 'Enter', code: 'Enter', keyCode: 13 },
+  tab: { key: 'Tab', code: 'Tab', keyCode: 9 },
+  escape: { key: 'Escape', code: 'Escape', keyCode: 27 },
+  esc: { key: 'Escape', code: 'Escape', keyCode: 27 },
+  backspace: { key: 'Backspace', code: 'Backspace', keyCode: 8 },
+  delete: { key: 'Delete', code: 'Delete', keyCode: 46 },
+  space: { key: ' ', code: 'Space', keyCode: 32 },
+  insert: { key: 'Insert', code: 'Insert', keyCode: 45 },
+  home: { key: 'Home', code: 'Home', keyCode: 36 },
+  end: { key: 'End', code: 'End', keyCode: 35 },
+  pageup: { key: 'PageUp', code: 'PageUp', keyCode: 33 },
+  pagedown: { key: 'PageDown', code: 'PageDown', keyCode: 34 },
+  capslock: { key: 'CapsLock', code: 'CapsLock', keyCode: 20 },
 
   // Arrows
-  up:         { key: 'ArrowUp',    code: 'ArrowUp',    keyCode: 38 },
-  down:       { key: 'ArrowDown',  code: 'ArrowDown',  keyCode: 40 },
-  left:       { key: 'ArrowLeft',  code: 'ArrowLeft',  keyCode: 37 },
-  right:      { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 },
-  arrowup:    { key: 'ArrowUp',    code: 'ArrowUp',    keyCode: 38 },
-  arrowdown:  { key: 'ArrowDown',  code: 'ArrowDown',  keyCode: 40 },
-  arrowleft:  { key: 'ArrowLeft',  code: 'ArrowLeft',  keyCode: 37 },
+  up: { key: 'ArrowUp', code: 'ArrowUp', keyCode: 38 },
+  down: { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40 },
+  left: { key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37 },
+  right: { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 },
+  arrowup: { key: 'ArrowUp', code: 'ArrowUp', keyCode: 38 },
+  arrowdown: { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40 },
+  arrowleft: { key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37 },
   arrowright: { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 },
 
   // Function keys
@@ -123,6 +173,37 @@ const KEY_DEFS: Record<string, KeyDef> = {
   '7': { key: '7', code: 'Digit7', keyCode: 55 },
   '8': { key: '8', code: 'Digit8', keyCode: 56 },
   '9': { key: '9', code: 'Digit9', keyCode: 57 },
+
+  // Punctuation & symbols
+  ',': { key: ',', code: 'Comma', keyCode: 188 },
+  comma: { key: ',', code: 'Comma', keyCode: 188 },
+  '.': { key: '.', code: 'Period', keyCode: 190 },
+  period: { key: '.', code: 'Period', keyCode: 190 },
+  '/': { key: '/', code: 'Slash', keyCode: 191 },
+  slash: { key: '/', code: 'Slash', keyCode: 191 },
+  '\\': { key: '\\', code: 'Backslash', keyCode: 220 },
+  backslash: { key: '\\', code: 'Backslash', keyCode: 220 },
+  '-': { key: '-', code: 'Minus', keyCode: 189 },
+  minus: { key: '-', code: 'Minus', keyCode: 189 },
+  '=': { key: '=', code: 'Equal', keyCode: 187 },
+  equal: { key: '=', code: 'Equal', keyCode: 187 },
+  '[': { key: '[', code: 'BracketLeft', keyCode: 219 },
+  ']': { key: ']', code: 'BracketRight', keyCode: 221 },
+  ';': { key: ';', code: 'Semicolon', keyCode: 186 },
+  semicolon: { key: ';', code: 'Semicolon', keyCode: 186 },
+  "'": { key: "'", code: 'Quote', keyCode: 222 },
+  quote: { key: "'", code: 'Quote', keyCode: 222 },
+  '`': { key: '`', code: 'Backquote', keyCode: 192 },
+  backquote: { key: '`', code: 'Backquote', keyCode: 192 },
+
+  // Windows key (maps to Meta on Windows, same as Cmd on Mac)
+  win: {
+    key: 'Meta',
+    code: 'MetaLeft',
+    keyCode: 91,
+    isModifier: true,
+    modifierBit: 4,
+  },
 };
 
 // macOS shortcut commands — CDP uses the `commands` parameter
@@ -185,7 +266,9 @@ export class EmbeddedBrowserOperator extends Operator {
       if (webviewWC) break;
 
       if (attempt < maxRetries) {
-        logger.info('[EmbeddedBrowserOperator] Webview not found yet, retrying...');
+        logger.info(
+          '[EmbeddedBrowserOperator] Webview not found yet, retrying...',
+        );
         await delay(500);
       }
     }
@@ -202,7 +285,9 @@ export class EmbeddedBrowserOperator extends Operator {
     try {
       if (this.wc.debugger.isAttached()) {
         this.wc.debugger.detach();
-        logger.info('[EmbeddedBrowserOperator] Detached existing debugger before re-attaching');
+        logger.info(
+          '[EmbeddedBrowserOperator] Detached existing debugger before re-attaching',
+        );
       }
     } catch {
       // Ignore detach errors
@@ -265,15 +350,23 @@ export class EmbeddedBrowserOperator extends Operator {
 
     // If webContents was destroyed (e.g. webview navigated), try to find a new one
     if (!this.wc || this.wc.isDestroyed()) {
-      logger.warn('[EmbeddedBrowserOperator] WebContents destroyed, attempting to reconnect...');
+      logger.warn(
+        '[EmbeddedBrowserOperator] WebContents destroyed, attempting to reconnect...',
+      );
       const allWC = webContents.getAllWebContents();
-      const webviewWC = allWC.find((wc) => wc.getType() === 'webview' && !wc.isDestroyed());
+      const webviewWC = allWC.find(
+        (wc) => wc.getType() === 'webview' && !wc.isDestroyed(),
+      );
       if (!webviewWC) {
-        throw new Error('[EmbeddedBrowserOperator] WebContents destroyed and no webview available');
+        throw new Error(
+          '[EmbeddedBrowserOperator] WebContents destroyed and no webview available',
+        );
       }
       this.wc = webviewWC;
       this.debuggerAttached = false;
-      logger.info(`[EmbeddedBrowserOperator] Found new webview (id: ${this.wc.id})`);
+      logger.info(
+        `[EmbeddedBrowserOperator] Found new webview (id: ${this.wc.id})`,
+      );
     }
 
     // Re-attach debugger if needed
@@ -367,7 +460,9 @@ export class EmbeddedBrowserOperator extends Operator {
     const startY = coords.y != null ? coords.y / scaleFactor : null;
 
     logger.info(`[EmbeddedBrowserOperator] Execute: ${action_type}`, {
-      startX, startY, action_inputs,
+      startX,
+      startY,
+      action_inputs,
     });
 
     try {
@@ -375,17 +470,20 @@ export class EmbeddedBrowserOperator extends Operator {
         case 'click':
         case 'left_click':
         case 'left_single':
-          if (startX != null && startY != null) await this.mouseClick(startX, startY);
+          if (startX != null && startY != null)
+            await this.mouseClick(startX, startY);
           break;
 
         case 'double_click':
         case 'left_double':
-          if (startX != null && startY != null) await this.mouseClick(startX, startY, 'left', 2);
+          if (startX != null && startY != null)
+            await this.mouseClick(startX, startY, 'left', 2);
           break;
 
         case 'right_click':
         case 'right_single':
-          if (startX != null && startY != null) await this.mouseClick(startX, startY, 'right', 1);
+          if (startX != null && startY != null)
+            await this.mouseClick(startX, startY, 'right', 1);
           break;
 
         case 'type':
@@ -411,7 +509,12 @@ export class EmbeddedBrowserOperator extends Operator {
           break;
 
         case 'drag':
-          await this.handleDrag(action_inputs, scaleFactor, screenWidth, screenHeight);
+          await this.handleDrag(
+            action_inputs,
+            scaleFactor,
+            screenWidth,
+            screenHeight,
+          );
           break;
 
         case 'navigate':
@@ -438,12 +541,17 @@ export class EmbeddedBrowserOperator extends Operator {
           break;
 
         default:
-          logger.warn(`[EmbeddedBrowserOperator] Unsupported action: ${action_type}`);
+          logger.warn(
+            `[EmbeddedBrowserOperator] Unsupported action: ${action_type}`,
+          );
       }
 
       logger.info(`[EmbeddedBrowserOperator] Action ${action_type} completed`);
     } catch (error) {
-      logger.error(`[EmbeddedBrowserOperator] Failed to execute ${action_type}:`, error);
+      logger.error(
+        `[EmbeddedBrowserOperator] Failed to execute ${action_type}:`,
+        error,
+      );
       throw error;
     }
 
@@ -460,26 +568,34 @@ export class EmbeddedBrowserOperator extends Operator {
   private async mouseMove(x: number, y: number) {
     await this.cdp('Input.dispatchMouseEvent', {
       type: 'mouseMoved',
-      x, y,
+      x,
+      y,
       button: 'none',
       clickCount: 0,
     });
   }
 
-  private async mouseClick(x: number, y: number, button = 'left', clickCount = 1) {
+  private async mouseClick(
+    x: number,
+    y: number,
+    button = 'left',
+    clickCount = 1,
+  ) {
     await this.mouseMove(x, y);
     await delay(100);
 
     await this.cdp('Input.dispatchMouseEvent', {
       type: 'mousePressed',
-      x, y,
+      x,
+      y,
       button,
       clickCount,
     });
     await delay(50);
     await this.cdp('Input.dispatchMouseEvent', {
       type: 'mouseReleased',
-      x, y,
+      x,
+      y,
       button,
       clickCount,
     });
@@ -510,12 +626,37 @@ export class EmbeddedBrowserOperator extends Operator {
     const keyStr = inputs?.key || inputs?.hotkey;
     if (!keyStr) return;
 
-    const keys = keyStr.split(/[\s+]+/).filter(Boolean);
-    const defs: KeyDef[] = keys.map((key: string) => {
+    // Normalize multi-word key names like "page down" → "pagedown"
+    // before splitting on spaces (which are also the key separator).
+    const normalized = keyStr
+      .replace(/\bpage\s+down\b/gi, 'pagedown')
+      .replace(/\bpage\s+up\b/gi, 'pageup')
+      .replace(/\bcaps\s*lock\b/gi, 'capslock')
+      .replace(/\bscroll\s*lock\b/gi, 'scrolllock')
+      .replace(/\bnum\s*lock\b/gi, 'numlock')
+      .replace(/\bprint\s*screen\b/gi, 'printscreen')
+      .replace(/\bcontext\s*menu\b/gi, 'contextmenu');
+
+    const keys = normalized.split(/[\s+]+/).filter(Boolean);
+    const defs: KeyDef[] = [];
+    for (const key of keys) {
       const def = KEY_DEFS[key.toLowerCase()];
-      if (!def) throw new Error(`Unsupported key: ${key}`);
-      return def;
-    });
+      if (!def) {
+        // Log warning instead of throwing — unknown keys should not crash the agent loop
+        logger.warn(
+          `[EmbeddedBrowserOperator] Unsupported key: "${key}", skipping`,
+        );
+        continue;
+      }
+      defs.push(def);
+    }
+
+    if (defs.length === 0) {
+      logger.warn(
+        `[EmbeddedBrowserOperator] No valid keys found in hotkey: "${keyStr}"`,
+      );
+      return;
+    }
 
     if (defs.length === 1) {
       await this.keyTap(defs[0]);
@@ -523,7 +664,10 @@ export class EmbeddedBrowserOperator extends Operator {
       // Multi-key shortcut
       const modifiers = defs.filter((d) => d.isModifier);
       const nonModifiers = defs.filter((d) => !d.isModifier);
-      const modifierBits = modifiers.reduce((acc, m) => acc | (m.modifierBit || 0), 0);
+      const modifierBits = modifiers.reduce(
+        (acc, m) => acc | (m.modifierBit || 0),
+        0,
+      );
 
       // Check for macOS shortcut command
       const shortcutKey = defs.map((d) => d.key).join('+');
@@ -578,14 +722,22 @@ export class EmbeddedBrowserOperator extends Operator {
     await delay(500);
   }
 
-  private async handleKeyAction(inputs: Record<string, any>, direction: 'down' | 'up') {
+  private async handleKeyAction(
+    inputs: Record<string, any>,
+    direction: 'down' | 'up',
+  ) {
     const keyStr = inputs?.key;
     if (!keyStr) return;
 
     const keys = keyStr.split(/[\s+]+/).filter(Boolean);
     for (const key of keys) {
       const def = KEY_DEFS[key.toLowerCase()];
-      if (!def) throw new Error(`Unsupported key: ${key}`);
+      if (!def) {
+        logger.warn(
+          `[EmbeddedBrowserOperator] Unsupported key in ${direction}: "${key}", skipping`,
+        );
+        continue;
+      }
       await this.cdp('Input.dispatchKeyEvent', {
         type: direction === 'down' ? 'rawKeyDown' : 'keyUp',
         key: def.key,
@@ -627,12 +779,22 @@ export class EmbeddedBrowserOperator extends Operator {
     let deltaY = 0;
 
     switch (direction?.toLowerCase()) {
-      case 'up':    deltaY = -scrollAmount; break;
-      case 'down':  deltaY = scrollAmount;  break;
-      case 'left':  deltaX = -scrollAmount; break;
-      case 'right': deltaX = scrollAmount;  break;
+      case 'up':
+        deltaY = -scrollAmount;
+        break;
+      case 'down':
+        deltaY = scrollAmount;
+        break;
+      case 'left':
+        deltaX = -scrollAmount;
+        break;
+      case 'right':
+        deltaX = scrollAmount;
+        break;
       default:
-        logger.warn(`[EmbeddedBrowserOperator] Unsupported scroll direction: ${direction}`);
+        logger.warn(
+          `[EmbeddedBrowserOperator] Unsupported scroll direction: ${direction}`,
+        );
         return;
     }
 
@@ -655,7 +817,9 @@ export class EmbeddedBrowserOperator extends Operator {
     }
 
     if (!isValidNavigationUrl(url)) {
-      logger.warn(`[EmbeddedBrowserOperator] Blocked navigation to unsafe URL: ${url}`);
+      logger.warn(
+        `[EmbeddedBrowserOperator] Blocked navigation to unsafe URL: ${url}`,
+      );
       return;
     }
 
@@ -677,8 +841,16 @@ export class EmbeddedBrowserOperator extends Operator {
 
     if (!startBoxStr || !endBoxStr) return;
 
-    const startCoords = parseBoxToScreenCoords({ boxStr: startBoxStr, screenWidth, screenHeight });
-    const endCoords = parseBoxToScreenCoords({ boxStr: endBoxStr, screenWidth, screenHeight });
+    const startCoords = parseBoxToScreenCoords({
+      boxStr: startBoxStr,
+      screenWidth,
+      screenHeight,
+    });
+    const endCoords = parseBoxToScreenCoords({
+      boxStr: endBoxStr,
+      screenWidth,
+      screenHeight,
+    });
 
     const sx = startCoords.x != null ? startCoords.x / scaleFactor : null;
     const sy = startCoords.y != null ? startCoords.y / scaleFactor : null;
@@ -693,7 +865,8 @@ export class EmbeddedBrowserOperator extends Operator {
     // Mouse down
     await this.cdp('Input.dispatchMouseEvent', {
       type: 'mousePressed',
-      x: sx, y: sy,
+      x: sx,
+      y: sy,
       button: 'left',
       clickCount: 1,
     });
@@ -712,7 +885,8 @@ export class EmbeddedBrowserOperator extends Operator {
     // Mouse up
     await this.cdp('Input.dispatchMouseEvent', {
       type: 'mouseReleased',
-      x: ex, y: ey,
+      x: ex,
+      y: ey,
       button: 'left',
       clickCount: 1,
     });

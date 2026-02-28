@@ -248,6 +248,18 @@ class ScreenMarker {
 
       try {
         this.closeOverlay();
+
+        // overlay.xPos/yPos are in screenshot pixel space (physical pixels on
+        // Windows). Electron BrowserWindow x/y expects logical (screen) coords.
+        // On macOS scaleFactor=1 so physical===logical.
+        // On Windows we must divide by scaleFactor to convert physical→logical.
+        let overlayX: number | undefined;
+        let overlayY: number | undefined;
+        if (overlay.xPos && overlay.yPos) {
+          overlayX = Math.floor((overlay.xPos + overlay.offsetX) / scaleFactor);
+          overlayY = Math.floor((overlay.yPos + overlay.offsetY) / scaleFactor);
+        }
+
         this.currentOverlay = new BrowserWindow({
           width: overlay.boxWidth || 300,
           height: overlay.boxHeight || 100,
@@ -261,11 +273,10 @@ class ScreenMarker {
           paintWhenInitiallyHidden: true,
           type: 'panel',
           webPreferences: { nodeIntegration: true, contextIsolation: false },
-          ...(overlay.xPos &&
-            overlay.yPos && {
-              // logical pixels
-              x: (overlay.xPos + overlay.offsetX) * scaleFactor,
-              y: (overlay.yPos + overlay.offsetY) * scaleFactor,
+          ...(overlayX !== undefined &&
+            overlayY !== undefined && {
+              x: overlayX,
+              y: overlayY,
             }),
         });
 

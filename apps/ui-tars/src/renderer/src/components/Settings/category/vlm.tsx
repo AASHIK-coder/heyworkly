@@ -57,10 +57,22 @@ const PROVIDER_PRESETS: Record<
 };
 
 const POPULAR_MODELS = [
+  // UI-TARS native models (use specialized coordinate format)
   {
     id: 'bytedance/ui-tars-1.5-7b',
     label: 'UI-TARS 1.5 7B (Default)',
     category: 'ByteDance',
+  },
+  // Anthropic (general VLM — use standard coordinate format)
+  {
+    id: 'anthropic/claude-opus-4',
+    label: 'Claude Opus 4',
+    category: 'Anthropic',
+  },
+  {
+    id: 'anthropic/claude-sonnet-4',
+    label: 'Claude Sonnet 4',
+    category: 'Anthropic',
   },
   {
     id: 'anthropic/claude-sonnet-4.5',
@@ -77,10 +89,38 @@ const POPULAR_MODELS = [
     label: 'Claude Haiku 4.5',
     category: 'Anthropic',
   },
+  // OpenAI (general VLM)
   { id: 'openai/gpt-4.1', label: 'GPT-4.1', category: 'OpenAI' },
   { id: 'openai/gpt-4.1-mini', label: 'GPT-4.1 Mini', category: 'OpenAI' },
   { id: 'openai/gpt-4o', label: 'GPT-4o', category: 'OpenAI' },
   { id: 'openai/o4-mini', label: 'o4-mini', category: 'OpenAI' },
+  // Google (general VLM)
+  {
+    id: 'google/gemini-2.5-pro-preview',
+    label: 'Gemini 2.5 Pro',
+    category: 'Google',
+  },
+  {
+    id: 'google/gemini-2.5-flash-preview',
+    label: 'Gemini 2.5 Flash',
+    category: 'Google',
+  },
+  {
+    id: 'google/gemini-2.0-flash-001',
+    label: 'Gemini 2.0 Flash',
+    category: 'Google',
+  },
+  // Qwen (general VLM)
+  {
+    id: 'qwen/qwen-2.5-vl-72b-instruct',
+    label: 'Qwen 2.5 VL 72B',
+    category: 'Qwen',
+  },
+  {
+    id: 'qwen/qwen-2.5-vl-7b-instruct',
+    label: 'Qwen 2.5 VL 7B',
+    category: 'Qwen',
+  },
 ];
 
 export interface VLMSettingsRef {
@@ -337,9 +377,7 @@ export function VLMSettings({
               )}
               <FormControl>
                 <Input
-                  placeholder={
-                    preset?.modelPlaceholder || 'Enter model name'
-                  }
+                  placeholder={preset?.modelPlaceholder || 'Enter model name'}
                   {...field}
                 />
               </FormControl>

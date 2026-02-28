@@ -56,14 +56,20 @@ export class NutJSElectronOperator extends NutJSOperator {
     // Hide overlays so the VLM sees a clean screenshot without the
     // water-flow border or prediction markers
     hideOverlaysForExecution();
-    await sleep(50);
+    // Windows needs a longer delay for its window manager to process the hide
+    await sleep(env.isWindows ? 200 : 50);
 
     try {
+      // On Windows with DPI scaling, request the thumbnail at PHYSICAL pixel
+      // size so desktopCapturer returns a native-resolution image instead of
+      // a logical-resolution image that we'd have to upscale (producing blur).
+      // On macOS, scaleFactor is 1 so physical === logical; Retina is handled
+      // natively by desktopCapturer which returns a 2x image automatically.
       const sources = await desktopCapturer.getSources({
         types: ['screen'],
         thumbnailSize: {
-          width: Math.round(logicalSize.width),
-          height: Math.round(logicalSize.height),
+          width: Math.round(physicalSize.width),
+          height: Math.round(physicalSize.height),
         },
       });
       const primarySource =
@@ -81,14 +87,27 @@ export class NutJSElectronOperator extends NutJSOperator {
       }
 
       const screenshot = primarySource.thumbnail;
+      const screenshotSize = screenshot.getSize();
 
-      const resized = screenshot.resize({
-        width: physicalSize.width,
-        height: physicalSize.height,
-      });
+      logger.info(
+        '[screenshot] captured size:',
+        screenshotSize,
+        'target physical:',
+        physicalSize,
+      );
+
+      // Only resize if the captured size doesn't match the target physical size
+      const finalImage =
+        screenshotSize.width !== physicalSize.width ||
+        screenshotSize.height !== physicalSize.height
+          ? screenshot.resize({
+              width: physicalSize.width,
+              height: physicalSize.height,
+            })
+          : screenshot;
 
       return {
-        base64: resized.toJPEG(75).toString('base64'),
+        base64: finalImage.toJPEG(75).toString('base64'),
         scaleFactor,
       };
     } finally {
@@ -116,7 +135,8 @@ export class NutJSElectronOperator extends NutJSOperator {
     // underlying app receives the event.
     if (needsOverlayHide) {
       hideOverlaysForExecution();
-      await sleep(50); // allow the window server to process the hide
+      // Windows window manager needs more time to process the hide
+      await sleep(env.isWindows ? 200 : 50);
     }
 
     try {
@@ -132,6 +152,12 @@ export class NutJSElectronOperator extends NutJSOperator {
         await keyboard.releaseKey(Key.LeftControl, Key.V);
         await sleep(50);
         clipboard.writeText(originalClipboard);
+
+        // Press Enter if content ends with newline (e.g. submitting a search query)
+        if (content.endsWith('\n') || content.endsWith('\\n')) {
+          await keyboard.pressKey(Key.Enter);
+          await keyboard.releaseKey(Key.Enter);
+        }
       } else {
         return await super.execute(params);
       }

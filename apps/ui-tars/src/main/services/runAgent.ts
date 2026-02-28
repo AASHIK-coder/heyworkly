@@ -184,6 +184,7 @@ export const runAgent = async (
     modelVersion,
     language,
     operatorType,
+    modelConfig.model || settings.vlmModelName,
   );
 
   const guiAgent = new GUIAgent({
@@ -250,9 +251,7 @@ export const runAgent = async (
   logger.info(
     `[runAgent] augmentedInstructions length: ${augmentedInstructions.length}, has file context: ${augmentedInstructions.includes('## Attached Files')}`,
   );
-  logger.info(
-    `[runAgent] image attachments: ${imageFiles.length}`,
-  );
+  logger.info(`[runAgent] image attachments: ${imageFiles.length}`);
 
   beforeAgentRun(settings.operator);
 

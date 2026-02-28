@@ -6,6 +6,7 @@ import {
 } from '../store/types';
 import {
   getSystemPromptV1_5,
+  getSystemPromptGeneralVLM,
 } from '../agent/prompts';
 import {
   closeScreenMarker,
@@ -17,6 +18,22 @@ import {
 import { hideMainWindow, showMainWindow } from '../window';
 import { SearchEngine } from '@ui-tars/operator-browser';
 
+/**
+ * Known UI-TARS native model patterns.
+ * These models were specifically trained with the <|box_start|> coordinate format.
+ */
+const UI_TARS_MODEL_PATTERNS = ['ui-tars', 'uitars', 'ui_tars'];
+
+/**
+ * Detect if a model name refers to a UI-TARS native model.
+ * General VLMs (Claude, GPT, Gemini, Qwen, etc.) need a different prompt format.
+ */
+export const isUITarsModel = (modelName: string | undefined): boolean => {
+  if (!modelName) return false;
+  const lower = modelName.toLowerCase();
+  return UI_TARS_MODEL_PATTERNS.some((pattern) => lower.includes(pattern));
+};
+
 export const getModelVersion = (
   _provider: VLMProviderV2 | string | undefined,
 ): UITarsModelVersion => {
@@ -24,12 +41,23 @@ export const getModelVersion = (
   return UITarsModelVersion.V1_5;
 };
 
+/**
+ * Select the appropriate system prompt based on the model.
+ * - UI-TARS models: Use V1.5 format with <|box_start|> tokens (native training format)
+ * - General VLMs (Claude, GPT, Gemini, etc.): Use standard [x,y,x,y] coordinate format
+ *   with detailed instructions since these models weren't trained for GUI automation
+ */
 export const getSpByModelVersion = (
   _modelVersion: UITarsModelVersion,
   language: 'zh' | 'en',
-  _operatorType: 'browser' | 'computer',
+  operatorType: 'browser' | 'computer',
+  modelName?: string,
 ) => {
-  return getSystemPromptV1_5(language, 'normal');
+  if (isUITarsModel(modelName)) {
+    return getSystemPromptV1_5(language, 'normal');
+  }
+  // General VLM — use comprehensive prompt with standard coordinate format
+  return getSystemPromptGeneralVLM(language, operatorType);
 };
 
 export const getLocalBrowserSearchEngine = (
