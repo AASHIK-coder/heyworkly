@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <defs>
+    <linearGradient id="coral-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+    <linearGradient id="coral-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+  <!-- Rounded square base -->
+  <rect x="2" y="2" width="36" height="36" rx="10" fill="url(#coral-grad)"/>
+  <!-- Abstract 'h' / lightning bolt mark -->
+  <path d="M14 10 L14 20 L19 16 L19 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Dot accent -->
+  <circle cx="26" cy="14" r="3" fill="url(#coral-light)" opacity="0.9"/>
+  <circle cx="26" cy="14" r="3" fill="white" opacity="0.8"/>
+</svg>

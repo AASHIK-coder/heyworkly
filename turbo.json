@@ -1,0 +1,51 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "envMode": "loose",
+  "tasks": {
+    "//#bootstrap": {
+      "dependsOn": [
+        "^prepare"
+      ],
+      "outputs": [
+        "**/build/**",
+        "**/dist/**",
+        "**/out/**"
+      ]
+    },
+    "heyworkly-desktop#build": {
+      "outputs": [
+        "apps/heyworkly-desktop/dist/**",
+        "apps/heyworkly-desktop/out/**"
+      ]
+    },
+    "heyworkly-desktop#build:e2e": {
+      "outputs": [
+        "apps/heyworkly-desktop/out/**",
+        "apps/heyworkly-desktop/dist/**"
+      ]
+    },
+    "heyworkly-desktop#test:e2e": {
+      "dependsOn": [
+        "heyworkly-desktop#build:e2e"
+      ]
+    },
+    "//#format": {},
+    "//#lint": {},
+    "//#test": {},
+    "//#coverage": {
+      "outputs": [
+        "coverage/**/*"
+      ]
+    },
+    "prepare": {
+      "dependsOn": [
+        "^prepare"
+      ]
+    },
+    "typecheck": {},
+    "dev": {
+      "persistent": true,
+      "cache": false
+    }
+  }
+}

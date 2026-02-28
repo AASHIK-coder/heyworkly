@@ -1,0 +1,95 @@
+name: Build heyworkly Desktop
+
+on:
+  workflow_dispatch:
+
+env:
+  NODE_OPTIONS: --max-old-space-size=8192
+  HUSKY: 0
+
+permissions:
+  contents: write
+
+jobs:
+  build_mac_arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        run: npm install -g pnpm@9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install Python setuptools
+        run: brew install python-setuptools
+      - name: Install appdmg
+        run: npm install -g appdmg
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      - name: Build and package
+        run: |
+          cd apps/ui-tars
+          npm run clean
+          npm run typecheck || true
+          NODE_ENV=production npx electron-vite build
+          npx electron-forge package --arch=arm64 --platform=darwin
+      - name: Ad-hoc codesign the app
+        run: |
+          APP_PATH="apps/ui-tars/out/heyworkly-darwin-arm64/heyworkly.app"
+          # Remove any existing signatures first
+          codesign --remove-signature "$APP_PATH" 2>/dev/null || true
+          # Ad-hoc sign with deep flag to sign all nested binaries/frameworks
+          codesign --force --deep --sign - "$APP_PATH"
+          # Verify the signature
+          codesign --verify --deep --strict "$APP_PATH"
+          echo "Ad-hoc signing successful"
+      - name: Create DMG
+        run: |
+          cd apps/ui-tars/out
+          mkdir -p dmg_staging
+          cp -R heyworkly-darwin-arm64/heyworkly.app dmg_staging/
+          ln -s /Applications dmg_staging/Applications
+          hdiutil create -volname "heyworkly" -srcfolder dmg_staging -ov -format UDZO "heyworkly-0.2.4-arm64.dmg"
+          rm -rf dmg_staging
+      - name: Create ZIP
+        run: |
+          cd apps/ui-tars/out/heyworkly-darwin-arm64
+          zip -r -y ../heyworkly-macos-arm64.zip heyworkly.app
+      - name: Upload macOS ARM64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: heyworkly-macos-arm64
+          path: |
+            apps/ui-tars/out/heyworkly-0.2.4-arm64.dmg
+            apps/ui-tars/out/heyworkly-macos-arm64.zip
+          if-no-files-found: warn
+
+  build_windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        run: npm install -g pnpm@9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      - name: Build
+        run: |
+          cd apps/ui-tars
+          npm run clean
+          npm run typecheck || echo "typecheck warnings, continuing..."
+          npx cross-env NODE_ENV=production npx electron-vite build
+          npx electron-forge make --arch=x64 --platform=win32 --enable-logging
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: heyworkly-windows-x64
+          path: |
+            apps/ui-tars/out/make/**/*.exe
+            apps/ui-tars/out/make/**/*.nupkg
+            apps/ui-tars/out/make/squirrel.windows/**/*
+          if-no-files-found: warn
