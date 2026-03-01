@@ -28,6 +28,14 @@ import {
   straightTo,
 } from '@computer-use/nut-js';
 import { clipboard } from 'electron';
+import {
+  showCursorOverlay,
+  hideCursorOverlay,
+  showScreenWaterFlow,
+  hideScreenWaterFlow,
+  setWaterFlowState,
+} from '@main/window/ScreenMarker';
+import { transformToWidget, expandFromWidget } from '@main/window/index';
 
 export const runMultiAgent = async (
   setState: (state: AppState) => void,
@@ -203,15 +211,17 @@ export const runMultiAgent = async (
         })),
         orchestratorPhase: 'plan-reveal',
       });
-      // After brief reveal, transition to executing
+      // After brief reveal, transition to executing and transform window
       setTimeout(() => {
         if (getState().orchestratorPhase === 'plan-reveal') {
           setState({ ...getState(), orchestratorPhase: 'executing' });
+          transformToWidget();
         }
       }, 2000);
     },
     onStepStart: (step) => {
       logger.info(`[Orchestrator] Starting step ${step.id}: ${step.task}`);
+      setWaterFlowState('active');
       setState({
         ...getState(),
         orchestratorActiveStep: step.id,
@@ -221,6 +231,7 @@ export const runMultiAgent = async (
       logger.info(
         `[Orchestrator] Step ${step.id} ${result.success ? 'succeeded' : 'failed'}`,
       );
+      setWaterFlowState(result.success ? 'step-complete' : 'error');
       const current = getState();
       setState({
         ...current,
@@ -240,6 +251,10 @@ export const runMultiAgent = async (
   });
 
   beforeAgentRun(settings.operator);
+
+  // Start visual effects
+  showScreenWaterFlow();
+  showCursorOverlay();
 
   try {
     const result = await orchestrator.run(instructions);
@@ -271,5 +286,11 @@ export const runMultiAgent = async (
     });
   } finally {
     afterAgentRun(settings.operator);
+    hideCursorOverlay();
+    setWaterFlowState('fadeout');
+    setTimeout(() => {
+      hideScreenWaterFlow();
+      expandFromWidget();
+    }, 1500);
   }
 };
