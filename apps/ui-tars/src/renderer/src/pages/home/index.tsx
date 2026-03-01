@@ -6,8 +6,6 @@ import { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router';
 import { Monitor, Globe } from 'lucide-react';
 
-import { Button } from '@renderer/components/ui/button';
-
 import { Operator } from '@main/store/types';
 import { useSession } from '../../hooks/useSession';
 import { useSetting } from '@renderer/hooks/useSetting';
