@@ -29,6 +29,7 @@ export const DEFAULT_SETTING: LocalStore = {
   desktopAgentModel: '',
   apiAgentModel: '',
   multiAgentEnabled: false,
+  mcpServers: [],
   maxLoopCount: 100,
   loopIntervalInMs: 1000,
   searchEngineForBrowser: SearchEngineForSettings.GOOGLE,

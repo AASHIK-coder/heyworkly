@@ -37,6 +37,19 @@ export const PresetSchema = z.object({
   loopIntervalInMs: z.number().min(0).max(3000).optional(),
   searchEngineForBrowser: z.nativeEnum(SearchEngineForSettings).optional(),
 
+  // MCP Server Configuration
+  mcpServers: z
+    .array(
+      z.object({
+        name: z.string(),
+        command: z.string(),
+        args: z.array(z.string()),
+        env: z.record(z.string()).optional(),
+        enabled: z.boolean().optional(),
+      }),
+    )
+    .optional(),
+
   // Report Settings
   reportStorageBaseUrl: z.string().url().optional(),
   utioBaseUrl: z.string().url().optional(),

@@ -3,7 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { useEffect, useState, useImperativeHandle } from 'react';
-import { CheckCircle, XCircle, Loader2, EyeOff, Eye } from 'lucide-react';
+import {
+  CheckCircle,
+  XCircle,
+  Loader2,
+  EyeOff,
+  Eye,
+  Zap,
+  Scale,
+  Coins,
+} from 'lucide-react';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -28,6 +37,8 @@ import {
   SelectValue,
 } from '@renderer/components/ui/select';
 import { Input } from '@renderer/components/ui/input';
+import { Switch } from '@renderer/components/ui/switch';
+import { Label } from '@renderer/components/ui/label';
 import { Alert, AlertDescription } from '@renderer/components/ui/alert';
 import { cn } from '@renderer/utils';
 
@@ -40,7 +51,43 @@ const formSchema = z.object({
   vlmBaseUrl: z.string().url(),
   vlmApiKey: z.string().min(1),
   vlmModelName: z.string().min(1),
+  // Multi-agent fields
+  multiAgentEnabled: z.boolean().optional(),
+  plannerModel: z.string().optional(),
+  browserAgentModel: z.string().optional(),
+  desktopAgentModel: z.string().optional(),
+  apiAgentModel: z.string().optional(),
 });
+
+const AGENT_PRESETS = [
+  {
+    name: 'Performance',
+    description: 'Best accuracy, higher cost',
+    icon: Zap,
+    planner: 'anthropic/claude-sonnet-4.6',
+    browser: 'anthropic/claude-sonnet-4.6',
+    desktop: 'anthropic/claude-sonnet-4.6',
+    api: 'anthropic/claude-sonnet-4.6',
+  },
+  {
+    name: 'Balanced',
+    description: 'Good accuracy, moderate cost',
+    icon: Scale,
+    planner: 'anthropic/claude-sonnet-4.6',
+    browser: 'google/gemini-2.5-flash-preview',
+    desktop: 'anthropic/claude-sonnet-4.6',
+    api: 'anthropic/claude-haiku-4.5',
+  },
+  {
+    name: 'Budget',
+    description: 'Fast and cheap',
+    icon: Coins,
+    planner: 'google/gemini-2.5-pro-preview',
+    browser: 'google/gemini-2.5-flash-preview',
+    desktop: 'qwen/qwen-2.5-vl-72b-instruct',
+    api: 'google/gemini-2.5-flash-preview',
+  },
+];
 
 const PROVIDER_PRESETS: Record<
   string,
@@ -148,6 +195,11 @@ export function VLMSettings({
       vlmBaseUrl: '',
       vlmApiKey: '',
       vlmModelName: '',
+      multiAgentEnabled: false,
+      plannerModel: '',
+      browserAgentModel: '',
+      desktopAgentModel: '',
+      apiAgentModel: '',
     },
   });
 
@@ -158,6 +210,11 @@ export function VLMSettings({
         vlmBaseUrl: settings.vlmBaseUrl,
         vlmApiKey: settings.vlmApiKey,
         vlmModelName: settings.vlmModelName,
+        multiAgentEnabled: settings.multiAgentEnabled ?? false,
+        plannerModel: settings.plannerModel ?? '',
+        browserAgentModel: settings.browserAgentModel ?? '',
+        desktopAgentModel: settings.desktopAgentModel ?? '',
+        apiAgentModel: settings.apiAgentModel ?? '',
       });
     }
   }, [settings, form]);
@@ -400,6 +457,144 @@ export function VLMSettings({
               modelName: newModelName,
             }}
           />
+        </div>
+
+        {/* Multi-Agent Mode */}
+        <div className="border-t border-border pt-5 mt-5">
+          <FormField
+            control={form.control}
+            name="multiAgentEnabled"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between">
+                <div>
+                  <FormLabel className="text-sm font-medium">
+                    Multi-Agent Mode
+                  </FormLabel>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Enable specialized agents for browser, desktop, and API
+                    tasks
+                  </p>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {form.watch('multiAgentEnabled') && (
+            <div className="mt-5 space-y-4">
+              {/* Preset Quick-Select */}
+              <div>
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Quick Presets
+                </Label>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  {AGENT_PRESETS.map((preset) => {
+                    const Icon = preset.icon;
+                    return (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        className="flex flex-col items-center gap-1 p-3 rounded-lg border border-border hover:border-primary/50 hover:bg-accent/50 transition-colors text-center"
+                        onClick={() => {
+                          form.setValue('plannerModel', preset.planner);
+                          form.setValue('browserAgentModel', preset.browser);
+                          form.setValue('desktopAgentModel', preset.desktop);
+                          form.setValue('apiAgentModel', preset.api);
+                        }}
+                      >
+                        <Icon size={16} className="text-muted-foreground" />
+                        <span className="text-xs font-medium">
+                          {preset.name}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {preset.description}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Per-Agent Model Fields */}
+              {(
+                [
+                  {
+                    name: 'plannerModel' as const,
+                    label: 'Planner Model',
+                    desc: 'Decomposes instructions into subtasks',
+                  },
+                  {
+                    name: 'browserAgentModel' as const,
+                    label: 'Browser Agent Model',
+                    desc: 'Executes web browser actions',
+                  },
+                  {
+                    name: 'desktopAgentModel' as const,
+                    label: 'Desktop Agent Model',
+                    desc: 'Controls mouse, keyboard, and system',
+                  },
+                  {
+                    name: 'apiAgentModel' as const,
+                    label: 'API Agent Model',
+                    desc: 'Calls APIs and MCP tools',
+                  },
+                ] as const
+              ).map((agentField) => (
+                <FormField
+                  key={agentField.name}
+                  control={form.control}
+                  name={agentField.name}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        {agentField.label}
+                      </FormLabel>
+                      {newProvider === VLMProviderV2.openrouter && (
+                        <Select
+                          onValueChange={(value) => field.onChange(value)}
+                          value={
+                            POPULAR_MODELS.some((m) => m.id === field.value)
+                              ? field.value
+                              : undefined
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select model..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {POPULAR_MODELS.map((model) => (
+                              <SelectItem key={model.id} value={model.id}>
+                                <span className="text-muted-foreground text-xs mr-1.5">
+                                  {model.category}
+                                </span>
+                                {model.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                      <FormControl>
+                        <Input
+                          placeholder={`Defaults to main model if empty`}
+                          {...field}
+                          value={field.value ?? ''}
+                        />
+                      </FormControl>
+                      <p className="text-[10px] text-muted-foreground">
+                        {agentField.desc}
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </form>
     </Form>

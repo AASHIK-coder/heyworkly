@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { create } from 'zustand';
 import { toast } from 'sonner';
-import { X, Sparkles, MessagesSquare, Cpu, Info } from 'lucide-react';
+import { X, Sparkles, MessagesSquare, Cpu, Info, Plug } from 'lucide-react';
 import { Button } from '@renderer/components/ui/button';
 import { ScrollArea } from '@renderer/components/ui/scroll-area';
 import { cn } from '@renderer/utils';
@@ -13,6 +13,7 @@ import {
   type LocalBrowserSettingsRef,
 } from './category/localBrowser';
 import { GeneralSettings } from './category/general';
+import { MCPSettings } from './category/mcp';
 
 interface GlobalSettingsStore {
   isOpen: boolean;
@@ -46,6 +47,12 @@ const NAV_ITEMS = [
     label: 'Browser',
     icon: Cpu,
     description: 'Browser operator defaults',
+  },
+  {
+    id: 'mcp',
+    label: 'MCP Tools',
+    icon: Plug,
+    description: 'External service integrations',
   },
   {
     id: 'about',
@@ -168,6 +175,15 @@ export const GlobalSettings = () => {
                   </SettingsSection>
                 )}
 
+                {activeSection === 'mcp' && (
+                  <SettingsSection
+                    title="MCP Tools"
+                    description="Configure external service integrations via Model Context Protocol servers."
+                  >
+                    <MCPSettings />
+                  </SettingsSection>
+                )}
+
                 {activeSection === 'about' && (
                   <SettingsSection
                     title="About"
@@ -189,7 +205,12 @@ export const GlobalSettings = () => {
               >
                 Cancel
               </Button>
-              <Button size="sm" onClick={handleSave} disabled={isSaving} className="px-5">
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-5"
+              >
                 {isSaving ? 'Saving...' : 'Save'}
               </Button>
             </div>
