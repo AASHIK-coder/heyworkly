@@ -190,6 +190,9 @@ export const runMultiAgent = async (
     }
   };
 
+  // Track step start times for elapsed-time display
+  const stepStartTimes = new Map<number, number>();
+
   // Create orchestrator with state-emitting callbacks
   const orchestrator = new Orchestrator({
     plannerModel,
@@ -221,6 +224,7 @@ export const runMultiAgent = async (
     },
     onStepStart: (step) => {
       logger.info(`[Orchestrator] Starting step ${step.id}: ${step.task}`);
+      stepStartTimes.set(step.id, Date.now());
       setWaterFlowState('active');
       setState({
         ...getState(),
@@ -243,6 +247,7 @@ export const runMultiAgent = async (
             result: result.result,
             error: result.error,
             retries: result.retries,
+            startTime: stepStartTimes.get(result.stepId),
             endTime: Date.now(),
           },
         ],
