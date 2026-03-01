@@ -21,6 +21,14 @@ export const PresetSchema = z.object({
   vlmModelName: z.string().min(1),
   useResponsesApi: z.boolean().optional(),
 
+  // Per-agent model selection (optional — defaults to vlmModelName)
+  plannerModel: z.string().optional(),
+  browserAgentModel: z.string().optional(),
+  desktopAgentModel: z.string().optional(),
+  apiAgentModel: z.string().optional(),
+  // Multi-agent mode toggle
+  multiAgentEnabled: z.boolean().optional(),
+
   // Chat Settings
   operator: z.nativeEnum(Operator),
   language: z.enum(['zh', 'en']).optional(),
