@@ -131,7 +131,7 @@ export const runMultiAgent = async (
         const nutKeys = keys
           .map((k) => {
             const upper = k.charAt(0).toUpperCase() + k.slice(1);
-            return (Key as Record<string, number>)[upper] ?? null;
+            return (Key as unknown as Record<string, number>)[upper] ?? null;
           })
           .filter((k): k is number => k !== null);
         if (nutKeys.length > 0) {

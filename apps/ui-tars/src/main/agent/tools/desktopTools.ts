@@ -279,7 +279,7 @@ export function createDesktopToolHandlers(deps: {
       return { success: true, result: '' };
     },
 
-    clipboard_set: async (args) => {
+    clipboard_set: async (_args) => {
       return { success: true, result: 'Clipboard updated' };
     },
 

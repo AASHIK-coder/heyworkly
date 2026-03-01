@@ -2,7 +2,7 @@
  * Copyright (c) 2025 heyworkly
  * SPDX-License-Identifier: Apache-2.0
  */
-import type { Page } from 'puppeteer-core';
+import type { Page, KeyInput } from 'puppeteer-core';
 import type { ToolDefinition, ToolHandler } from '@ui-tars/sdk';
 
 export function getBrowserToolDefinitions(): ToolDefinition[] {
@@ -257,7 +257,7 @@ export function createBrowserToolHandlers(
 
     gui_hotkey: async (args) =>
       withPage(async (page) => {
-        const keys = (args.keys as string).split(' ');
+        const keys = (args.keys as string).split(' ') as KeyInput[];
         for (let i = 0; i < keys.length - 1; i++) {
           await page.keyboard.down(keys[i]);
         }
