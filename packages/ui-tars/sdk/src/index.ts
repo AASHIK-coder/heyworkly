@@ -14,3 +14,9 @@ export {
   type ToolCallingModelConfig,
 } from './ToolCallingModel';
 export { Verifier, type VerificationResult } from './Verifier';
+export {
+  AgentLoop,
+  type ToolHandler,
+  type AgentLoopConfig,
+  type AgentLoopResult,
+} from './AgentLoop';
