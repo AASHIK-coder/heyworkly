@@ -23,5 +23,12 @@ export const store = createStore<AppState>(
       thinking: false,
       browserAvailable: false, // Defaults to false until the detection is complete
       attachments: [],
+      orchestratorPlan: null,
+      orchestratorActiveStep: null,
+      orchestratorStepResults: [],
+      orchestratorToolCalls: [],
+      orchestratorCursor: null,
+      orchestratorPhase: 'idle' as const,
+      orchestratorStartTime: null,
     }) satisfies AppState,
 );

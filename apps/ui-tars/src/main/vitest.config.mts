@@ -14,7 +14,7 @@ export default defineProject({
   root: './',
   test: {
     globals: true,
-    setupFiles: [resolve(__dirname, '../../scripts/vitest-setup.ts')],
+    setupFiles: [resolve(__dirname, '../../../../scripts/vitest-setup.ts')],
     environment: 'node',
     includeSource: [resolve(__dirname, '.')],
   },
@@ -22,7 +22,7 @@ export default defineProject({
   plugins: [
     // @ts-ignore
     tsconfigPath({
-      projects: ['../../tsconfig.node.json'],
+      projects: [resolve(__dirname, '../../tsconfig.node.json')],
     }),
   ],
 });

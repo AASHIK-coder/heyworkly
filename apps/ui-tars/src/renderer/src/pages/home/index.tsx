@@ -2,14 +2,13 @@
  * Copyright (c) 2025 heyworkly
  * SPDX-License-Identifier: Apache-2.0
  */
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router';
 import { Monitor, Globe } from 'lucide-react';
 
-import { Button } from '@renderer/components/ui/button';
-
 import { Operator } from '@main/store/types';
 import { useSession } from '../../hooks/useSession';
+import { useSetting } from '@renderer/hooks/useSetting';
 import {
   checkVLMSettings,
   LocalSettingsDialog,
@@ -19,6 +18,8 @@ import { sleep } from '@ui-tars/shared/utils';
 
 import { FreeTrialDialog } from '../../components/AlertDialog/freeTrialDialog';
 import { DragArea } from '../../components/Common/drag';
+
+const MultiAgentHome = lazy(() => import('./MultiAgentHome'));
 
 const Home = () => {
   const navigate = useNavigate();
@@ -142,7 +143,8 @@ const Home = () => {
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',
+            backgroundImage:
+              'radial-gradient(circle, currentColor 1px, transparent 1px)',
             backgroundSize: '24px 24px',
           }}
         />
@@ -178,12 +180,15 @@ const Home = () => {
                     Computer Operator
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Automate tasks directly on your computer with AI-powered desktop control.
+                    Automate tasks directly on your computer with AI-powered
+                    desktop control.
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-medium text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity">
                   Get started
-                  <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                  <span className="transition-transform group-hover:translate-x-0.5">
+                    &rarr;
+                  </span>
                 </div>
               </div>
             </button>
@@ -203,12 +208,15 @@ const Home = () => {
                     Browser Operator
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Navigate pages, fill forms, and automate browser workflows with AI assistance.
+                    Navigate pages, fill forms, and automate browser workflows
+                    with AI assistance.
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-medium text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity">
                   Get started
-                  <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                  <span className="transition-transform group-hover:translate-x-0.5">
+                    &rarr;
+                  </span>
                 </div>
               </div>
             </button>
@@ -230,4 +238,26 @@ const Home = () => {
   );
 };
 
-export default Home;
+const HomeRouter = () => {
+  const { settings } = useSetting();
+  const multiAgentEnabled =
+    (settings as Record<string, unknown>)?.multiAgentEnabled ?? false;
+
+  if (multiAgentEnabled) {
+    return (
+      <Suspense
+        fallback={
+          <div className="loading-container">
+            <div className="loading-spinner" />
+          </div>
+        }
+      >
+        <MultiAgentHome />
+      </Suspense>
+    );
+  }
+
+  return <Home />;
+};
+
+export default HomeRouter;

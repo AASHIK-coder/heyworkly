@@ -21,6 +21,14 @@ export const PresetSchema = z.object({
   vlmModelName: z.string().min(1),
   useResponsesApi: z.boolean().optional(),
 
+  // Per-agent model selection (optional — defaults to vlmModelName)
+  plannerModel: z.string().optional(),
+  browserAgentModel: z.string().optional(),
+  desktopAgentModel: z.string().optional(),
+  apiAgentModel: z.string().optional(),
+  // Multi-agent mode toggle
+  multiAgentEnabled: z.boolean().optional(),
+
   // Chat Settings
   operator: z.nativeEnum(Operator),
   language: z.enum(['zh', 'en']).optional(),
@@ -28,6 +36,19 @@ export const PresetSchema = z.object({
   maxLoopCount: z.number().min(25).max(200).optional(),
   loopIntervalInMs: z.number().min(0).max(3000).optional(),
   searchEngineForBrowser: z.nativeEnum(SearchEngineForSettings).optional(),
+
+  // MCP Server Configuration
+  mcpServers: z
+    .array(
+      z.object({
+        name: z.string(),
+        command: z.string(),
+        args: z.array(z.string()),
+        env: z.record(z.string()).optional(),
+        enabled: z.boolean().optional(),
+      }),
+    )
+    .optional(),
 
   // Report Settings
   reportStorageBaseUrl: z.string().url().optional(),
