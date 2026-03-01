@@ -44,7 +44,7 @@ export class PlannerAgent {
         { role: 'system', content: systemPrompt },
         { role: 'user', content: params.instruction },
       ],
-      tools: [getPlannerToolDefinition()],
+      tools: [getPlannerToolDefinition(this.config.availableAgents)],
       signal: params.signal,
     });
 
@@ -80,21 +80,24 @@ export class PlannerAgent {
   }
 
   private inferAgent(instruction: string): 'browser' | 'desktop' | 'api' {
+    const available = new Set(this.config.availableAgents);
     const lower = instruction.toLowerCase();
     if (
-      lower.includes('website') ||
-      lower.includes('browser') ||
-      lower.includes('url') ||
-      lower.includes('search') ||
-      lower.includes('google')
+      available.has('browser') &&
+      (lower.includes('website') ||
+        lower.includes('browser') ||
+        lower.includes('url') ||
+        lower.includes('search') ||
+        lower.includes('google'))
     ) {
       return 'browser';
     }
     if (
-      lower.includes('email') ||
-      lower.includes('api') ||
-      lower.includes('send') ||
-      lower.includes('slack')
+      available.has('api') &&
+      (lower.includes('email') ||
+        lower.includes('api') ||
+        lower.includes('send') ||
+        lower.includes('slack'))
     ) {
       return 'api';
     }

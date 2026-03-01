@@ -113,12 +113,19 @@ export class Orchestrator {
     let lastError: string | undefined;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      const agent = this.config.agents[step.agent];
+      // Try the assigned agent; if unavailable, fall back to desktop
+      let agent = this.config.agents[step.agent];
+      if (!agent) {
+        logger.warn(
+          `[Orchestrator] Agent "${step.agent}" not available for step ${step.id}, falling back to desktop`,
+        );
+        agent = this.config.agents['desktop'];
+      }
       if (!agent) {
         return {
           stepId: step.id,
           success: false,
-          error: `Agent "${step.agent}" not available`,
+          error: `No agent available for step ${step.id}`,
           retries: attempt,
         };
       }

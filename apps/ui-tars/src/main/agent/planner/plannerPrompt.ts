@@ -29,11 +29,12 @@ ${params.availableAgents.map((a) => `- **${a}**`).join('\n')}
 
 ## Rules
 1. Break complex tasks into small, atomic subtasks (each should take 1-5 actions).
-2. Assign each subtask to the most appropriate agent:
-   - **browser**: Web tasks (search, navigate, fill forms, extract data)
-   - **desktop**: Native app tasks (click UI, type, file operations, system interactions)
-   - **api**: Direct service calls when MCP tools are available (email, messaging, databases)
-3. Prefer **api** agent when an MCP tool exists for the service — it's faster and more reliable than GUI.
+2. You MUST ONLY assign agents from the Available Agents list above. Do NOT use agents that are not listed.
+3. Assign each subtask to the most appropriate available agent:
+   - **desktop**: Native app tasks AND web browsing (open browser, navigate, click, type, file operations, system interactions). Use this for web tasks when **browser** agent is not available.
+   - **browser**: Web tasks (search, navigate, fill forms, extract data) — only if listed above.
+   - **api**: Direct service calls when MCP tools are available (email, messaging, databases) — only if listed above.
+4. Prefer **api** agent when an MCP tool exists for the service — it's faster and more reliable than GUI.
 4. Set \`depends_on\` to enforce execution order. Independent tasks can run in parallel.
 5. Set \`verify: true\` for actions that must succeed before continuing.
 6. If the task is simple (single agent, 1-2 steps), still create a plan — just make it short.
@@ -45,7 +46,11 @@ ${params.currentState ? `## Current System State\n${params.currentState}\n` : ''
 Use the create_plan tool to output your execution plan.`;
 }
 
-export function getPlannerToolDefinition() {
+export function getPlannerToolDefinition(availableAgents?: string[]) {
+  const agentEnum =
+    availableAgents && availableAgents.length > 0
+      ? availableAgents
+      : ['browser', 'desktop', 'api'];
   return {
     type: 'function' as const,
     function: {
@@ -65,7 +70,7 @@ export function getPlannerToolDefinition() {
               type: 'object',
               properties: {
                 id: { type: 'number', description: 'Step ID (1-indexed)' },
-                agent: { type: 'string', enum: ['browser', 'desktop', 'api'] },
+                agent: { type: 'string', enum: agentEnum },
                 task: {
                   type: 'string',
                   description: 'Clear, actionable subtask description',
