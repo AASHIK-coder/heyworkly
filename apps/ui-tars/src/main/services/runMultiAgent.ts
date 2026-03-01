@@ -37,7 +37,18 @@ export const runMultiAgent = async (
   const { instructions, abortController } = getState();
   if (!instructions) return;
 
-  setState({ ...getState(), status: StatusEnum.RUNNING });
+  // Initialize orchestrator state
+  const startTime = Date.now();
+  setState({
+    ...getState(),
+    status: StatusEnum.RUNNING,
+    orchestratorPhase: 'planning',
+    orchestratorStartTime: startTime,
+    orchestratorPlan: null,
+    orchestratorActiveStep: null,
+    orchestratorStepResults: [],
+    orchestratorToolCalls: [],
+  });
 
   // Create per-agent models with shared base config
   const baseConfig = {
@@ -171,7 +182,7 @@ export const runMultiAgent = async (
     }
   };
 
-  // Create orchestrator
+  // Create orchestrator with state-emitting callbacks
   const orchestrator = new Orchestrator({
     plannerModel,
     agents: {
@@ -180,26 +191,55 @@ export const runMultiAgent = async (
       api: null, // Phase 3 — MCP integration
     },
     signal: abortController?.signal,
+    onPlanCreated: (plan) => {
+      logger.info(`[Orchestrator] Plan created: ${plan.plan.length} steps`);
+      setState({
+        ...getState(),
+        orchestratorPlan: plan.plan.map((s) => ({
+          id: s.id,
+          agent: s.agent,
+          task: s.task,
+          depends_on: s.depends_on,
+        })),
+        orchestratorPhase: 'plan-reveal',
+      });
+      // After brief reveal, transition to executing
+      setTimeout(() => {
+        if (getState().orchestratorPhase === 'plan-reveal') {
+          setState({ ...getState(), orchestratorPhase: 'executing' });
+        }
+      }, 2000);
+    },
     onStepStart: (step) => {
-      logger.info(
-        `[Orchestrator] Starting step ${step.id}: ${step.task} (agent: ${step.agent})`,
-      );
+      logger.info(`[Orchestrator] Starting step ${step.id}: ${step.task}`);
+      setState({
+        ...getState(),
+        orchestratorActiveStep: step.id,
+      });
     },
     onStepComplete: (step, result) => {
       logger.info(
-        `[Orchestrator] Step ${step.id} ${result.success ? 'succeeded' : 'failed'}${result.error ? ': ' + result.error : ''}`,
+        `[Orchestrator] Step ${step.id} ${result.success ? 'succeeded' : 'failed'}`,
       );
-    },
-    onPlanCreated: (plan) => {
-      logger.info(
-        `[Orchestrator] Plan created: ${plan.plan.length} steps — ${plan.plan.map((s) => `${s.id}:${s.agent}`).join(', ')}`,
-      );
+      const current = getState();
+      setState({
+        ...current,
+        orchestratorStepResults: [
+          ...current.orchestratorStepResults,
+          {
+            stepId: result.stepId,
+            success: result.success,
+            result: result.result,
+            error: result.error,
+            retries: result.retries,
+            endTime: Date.now(),
+          },
+        ],
+      });
     },
   });
 
   beforeAgentRun(settings.operator);
-
-  const startTime = Date.now();
 
   try {
     const result = await orchestrator.run(instructions);
@@ -211,6 +251,8 @@ export const runMultiAgent = async (
     setState({
       ...getState(),
       status: result.success ? StatusEnum.END : StatusEnum.ERROR,
+      orchestratorPhase: 'complete',
+      orchestratorActiveStep: null,
       errorMsg: result.success
         ? null
         : `Some steps failed: ${result.results
@@ -223,6 +265,8 @@ export const runMultiAgent = async (
     setState({
       ...getState(),
       status: StatusEnum.ERROR,
+      orchestratorPhase: 'complete',
+      orchestratorActiveStep: null,
       errorMsg: e instanceof Error ? e.message : String(e),
     });
   } finally {

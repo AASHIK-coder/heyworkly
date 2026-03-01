@@ -22,6 +22,39 @@ export type NextAction =
   | { type: 'finish' }
   | { type: 'error'; message: string };
 
+export interface OrchestratorPlanStep {
+  id: number;
+  agent: 'browser' | 'desktop' | 'api';
+  task: string;
+  depends_on: number[];
+}
+
+export interface OrchestratorStepResult {
+  stepId: number;
+  success: boolean;
+  result?: string;
+  error?: string;
+  retries: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export interface OrchestratorToolCall {
+  stepId: number;
+  toolName: string;
+  args: Record<string, unknown>;
+  status: 'pending' | 'success' | 'error';
+  result?: string;
+  timestamp: number;
+}
+
+export interface CursorState {
+  x: number;
+  y: number;
+  action: string;
+  visible: boolean;
+}
+
 export type AppState = {
   theme: 'dark' | 'light';
   ensurePermissions: { screenCapture?: boolean; accessibility?: boolean };
@@ -35,6 +68,19 @@ export type AppState = {
   thinking: boolean;
   browserAvailable: boolean;
   attachments: ProcessedFile[];
+  // Mission Control orchestrator state
+  orchestratorPlan: OrchestratorPlanStep[] | null;
+  orchestratorActiveStep: number | null;
+  orchestratorStepResults: OrchestratorStepResult[];
+  orchestratorToolCalls: OrchestratorToolCall[];
+  orchestratorCursor: CursorState | null;
+  orchestratorPhase:
+    | 'idle'
+    | 'planning'
+    | 'plan-reveal'
+    | 'executing'
+    | 'complete';
+  orchestratorStartTime: number | null;
 };
 
 export enum VlmProvider {
