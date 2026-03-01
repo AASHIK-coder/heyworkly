@@ -20,7 +20,10 @@
     "prepare": "husky"
   },
   "pnpm": {
-    "patchedDependencies": {}
+    "patchedDependencies": {},
+    "overrides": {
+      "nan": "2.25.0"
+    }
   },
   "devDependencies": {
     "@common/configs": "workspace:*",
