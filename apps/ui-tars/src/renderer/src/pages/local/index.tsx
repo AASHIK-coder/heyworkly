@@ -1,6 +1,7 @@
 import { MessageCirclePlus } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Card } from '@renderer/components/ui/card';
 import {
@@ -40,6 +41,9 @@ import {
   LocalSettingsDialog,
 } from '../../components/Settings/local';
 import { sleep } from '@ui-tars/shared/utils';
+import { useSetting } from '@renderer/hooks/useSetting';
+import { MissionControlWidget } from '@renderer/components/MissionControl';
+import { ResultsView } from '@renderer/components/Results';
 
 const getFinishedContent = (predictionParsed?: PredictionParsed[]) =>
   predictionParsed?.find(
@@ -55,6 +59,10 @@ const LocalOperator = () => {
   const { setOpen } = useSidebar();
 
   const { status, messages = [], thinking, errorMsg } = useStore();
+  const orchestratorPhase = useStore((s) => s.orchestratorPhase);
+  const { settings } = useSetting();
+  const multiAgentEnabled =
+    (settings as Record<string, unknown>)?.multiAgentEnabled ?? false;
   const containerRef = useRef<HTMLDivElement>(null);
   const suggestions: string[] = [];
   const [selectImg, setSelectImg] = useState<number | undefined>(undefined);
@@ -129,6 +137,22 @@ const LocalOperator = () => {
       containerRef.current?.scrollIntoView(false);
     }, 100);
   }, [messages, thinking, errorMsg]);
+
+  // Auto-run when navigating from MultiAgentHome with autoRun flag
+  useEffect(() => {
+    if (state.autoRun && state.from === 'home') {
+      api.runAgent();
+    }
+  }, [state.autoRun, state.from]);
+
+  // Toast on orchestrator completion
+  useEffect(() => {
+    if (multiAgentEnabled && orchestratorPhase === 'complete') {
+      toast.success('Task complete', {
+        description: 'All steps have finished.',
+      });
+    }
+  }, [multiAgentEnabled, orchestratorPhase]);
 
   const handleSelect = async (suggestion: string) => {
     await api.setInstructions({ instructions: suggestion });
@@ -339,6 +363,10 @@ const LocalOperator = () => {
         onSubmit={handleLocalSettingsSubmit}
         onClose={handleLocalSettingsClose}
       />
+      {multiAgentEnabled &&
+        orchestratorPhase !== 'idle' &&
+        orchestratorPhase !== 'complete' && <MissionControlWidget />}
+      {multiAgentEnabled && orchestratorPhase === 'complete' && <ResultsView />}
     </div>
   );
 };

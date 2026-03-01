@@ -76,7 +76,17 @@ export const agentRoute = t.router({
   }),
   stopRun: t.procedure.input<void>().handle(async () => {
     const { abortController } = store.getState();
-    store.setState({ status: StatusEnum.END, thinking: false });
+    store.setState({
+      status: StatusEnum.END,
+      thinking: false,
+      orchestratorPhase: 'idle',
+      orchestratorPlan: null,
+      orchestratorActiveStep: null,
+      orchestratorStepResults: [],
+      orchestratorToolCalls: [],
+      orchestratorCursor: null,
+      orchestratorStartTime: null,
+    });
 
     showWindow();
 
@@ -165,6 +175,13 @@ export const agentRoute = t.router({
       errorMsg: null,
       instructions: '',
       attachments: [],
+      orchestratorPhase: 'idle',
+      orchestratorPlan: null,
+      orchestratorActiveStep: null,
+      orchestratorStepResults: [],
+      orchestratorToolCalls: [],
+      orchestratorCursor: null,
+      orchestratorStartTime: null,
     });
   }),
 });
