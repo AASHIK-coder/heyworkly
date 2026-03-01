@@ -41,6 +41,12 @@ export const runAgent = async (
   const { instructions, abortController } = getState();
   assert(instructions, 'instructions is required');
 
+  // Multi-agent mode: use Orchestrator if enabled
+  if (settings.multiAgentEnabled) {
+    const { runMultiAgent } = await import('./runMultiAgent');
+    return runMultiAgent(setState, getState);
+  }
+
   const language = settings.language ?? 'en';
 
   logger.info('settings.operator', settings.operator);
