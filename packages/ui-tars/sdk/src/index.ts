@@ -7,3 +7,10 @@ export type { GUIAgentConfig } from './types';
 export type { GUIAgentData } from '@ui-tars/shared/types';
 export { StatusEnum } from '@ui-tars/shared/types';
 export { UITarsModelVersion } from '@ui-tars/shared/types';
+export {
+  ToolCallingModel,
+  type ToolDefinition,
+  type ToolCallResult,
+  type ToolCallingModelConfig,
+} from './ToolCallingModel';
+export { Verifier, type VerificationResult } from './Verifier';
