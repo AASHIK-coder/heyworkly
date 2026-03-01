@@ -6,4 +6,5 @@ export interface RouterState {
   isFree?: boolean;
   from: 'home' | 'new' | 'history';
   autoRun?: boolean;
+  autoRunInstructions?: string;
 }

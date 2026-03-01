@@ -13,7 +13,6 @@ import {
   LocalSettingsDialog,
 } from '@renderer/components/Settings/local';
 import { DragArea } from '@renderer/components/Common/drag';
-import { api } from '@renderer/api';
 
 const SUGGESTIONS = [
   'Search for flights from NYC to London',
@@ -43,14 +42,13 @@ const MultiAgentHome = () => {
       operator: Operator.LocalComputer,
     });
 
-    await api.setInstructions({ instructions: trimmed });
-
     navigate('/local', {
       state: {
         operator: Operator.LocalComputer,
         sessionId: session?.id,
         from: 'home',
         autoRun: true,
+        autoRunInstructions: trimmed,
       },
     });
   };

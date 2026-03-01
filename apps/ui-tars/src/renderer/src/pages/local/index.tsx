@@ -140,10 +140,16 @@ const LocalOperator = () => {
 
   // Auto-run when navigating from MultiAgentHome with autoRun flag
   useEffect(() => {
-    if (state.autoRun && state.from === 'home') {
-      api.runAgent();
+    if (state.autoRun && state.from === 'home' && state.autoRunInstructions) {
+      const startRun = async () => {
+        await api.setInstructions({
+          instructions: state.autoRunInstructions!,
+        });
+        await api.runAgent();
+      };
+      startRun();
     }
-  }, [state.autoRun, state.from]);
+  }, [state.autoRun, state.from, state.autoRunInstructions]);
 
   // Toast on orchestrator completion
   useEffect(() => {

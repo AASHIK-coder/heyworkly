@@ -106,6 +106,11 @@ const POPULAR_MODELS = [
   { id: 'openai/gpt-4.1-mini', label: 'GPT-4.1 Mini', category: 'OpenAI' },
   { id: 'openai/gpt-4o', label: 'GPT-4o', category: 'OpenAI' },
   { id: 'openai/o4-mini', label: 'o4-mini', category: 'OpenAI' },
+  {
+    id: 'openai/gpt-5-nano',
+    label: 'GPT-5 Nano',
+    category: 'OpenAI',
+  },
   // Google
   {
     id: 'google/gemini-2.5-pro-preview',
@@ -113,8 +118,13 @@ const POPULAR_MODELS = [
     category: 'Google',
   },
   {
-    id: 'google/gemini-2.5-flash-preview',
+    id: 'google/gemini-2.5-flash',
     label: 'Gemini 2.5 Flash',
+    category: 'Google',
+  },
+  {
+    id: 'google/gemini-2.5-flash-lite',
+    label: 'Gemini 2.5 Flash Lite',
     category: 'Google',
   },
   {
@@ -122,7 +132,41 @@ const POPULAR_MODELS = [
     label: 'Gemini 2.0 Flash',
     category: 'Google',
   },
-  // Qwen
+  {
+    id: 'google/gemini-3-flash-preview-20251217',
+    label: 'Gemini 3 Flash (Preview)',
+    category: 'Google',
+  },
+  // Moonshot
+  {
+    id: 'moonshotai/kimi-k2.5',
+    label: 'Kimi K2.5',
+    category: 'Moonshot',
+  },
+  // MiniMax
+  {
+    id: 'minimax/minimax-m2.5',
+    label: 'MiniMax M2.5',
+    category: 'MiniMax',
+  },
+  {
+    id: 'minimax/minimax-m2.1',
+    label: 'MiniMax M2.1',
+    category: 'MiniMax',
+  },
+  // xAI
+  {
+    id: 'x-ai/grok-4.1-fast',
+    label: 'Grok 4.1 Fast',
+    category: 'xAI',
+  },
+  // DeepSeek
+  {
+    id: 'deepseek/deepseek-v3.2-20251201',
+    label: 'DeepSeek V3.2',
+    category: 'DeepSeek',
+  },
+  // Qwen (vision models — tool calling via fallback)
   {
     id: 'qwen/qwen-2.5-vl-72b-instruct',
     label: 'Qwen 2.5 VL 72B',
